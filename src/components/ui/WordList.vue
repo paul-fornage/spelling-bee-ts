@@ -3,7 +3,7 @@
 import {ScrollArea} from "@/components/ui/scroll-area";
 import { Star } from 'lucide-vue-next';
 import { computed } from 'vue';
-import { ValidWord } from '@/interfaces.ts'
+import { ValidWord } from '@/utils.ts'
 
 
 

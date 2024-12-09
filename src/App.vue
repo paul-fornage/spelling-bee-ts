@@ -4,11 +4,18 @@ import Toolbar from "@/components/Toolbar.vue";
 import {ref, onMounted, computed} from "vue";
 import {
   type DateValue,
-  CalendarDate,
 } from '@internationalized/date'
 import axios from "axios";
-import {CombData, Language, ValidWord, WordCountData} from '@/interfaces.ts'
-
+import {
+  CombData,
+  Language,
+  ValidWord,
+  WordCountData,
+  DateToString,
+  DateFromString,
+  GetLocalStorageId,
+  LocalGameProgressSave
+} from '@/utils.ts'
 
 const local_dark_mode = localStorage.getItem('dark');
 if(local_dark_mode) {
@@ -51,6 +58,29 @@ function handleGuess(newGuess: string) {
   const matchingWord = valid_words.value.find(word => word.word === newGuess);
   if (matchingWord) {
     matchingWord.is_found = true;
+    if(selected_date.value === undefined) {
+      console.log("tried to handle guess before lang was selected. This should never happen.");
+      return
+    }
+    const date_string: string = DateToString(selected_date.value);
+    const game_id = GetLocalStorageId(date_string, selected_language_code.value);
+    const saved_games = localStorage.getItem('games');
+    if(saved_games == null){
+      console.log("tried to handle guess but games was not initialized");
+      return;
+    }
+    let parsedGames: LocalGameProgressSave[] = JSON.parse(saved_games);
+    const current_game = parsedGames.find(game => game.id === game_id);
+    if(current_game === undefined){
+      console.log("tried to handle guess but current game was not found in local storage");
+      return;
+    }
+    if(current_game.found_words.find(word => word === newGuess) !== undefined){
+      console.log("tried to handle guess but word was already found");
+      return;
+    }
+    current_game.found_words.push(newGuess);
+    localStorage.setItem('games', JSON.stringify(parsedGames));
     handleFoundWordsCalc();
   }
 }
@@ -83,11 +113,9 @@ const loadTodayDailyGame = async (lang_code: string) => {
     total_words.value = response.data['total_words'];
     total_points.value = response.data['total_points'];
     const raw_date: string = response.data['date'];  // example: `2024-12-02`
-    const split_date: string[] = raw_date.split('-');
-    const year: number = parseInt(split_date[0])
-    const month: number = parseInt(split_date[1])
-    const day: number = parseInt(split_date[2])
-    selected_date.value = new CalendarDate(year, month, day);
+    selected_date.value = DateFromString(raw_date);
+
+    loadSavedGuesses(lang_code, selected_date.value);
     // console.log(
     //     'Fetched valid_words:',
     //     valid_words.value,
@@ -108,6 +136,43 @@ const loadTodayDailyGame = async (lang_code: string) => {
   } catch (error) {
     console.error('Failed to fetch comb data:', error);
   }
+}
+
+function loadSavedGuesses(lang_code: string, date: DateValue) {
+  const date_string: string = DateToString(date);
+  const game_id = GetLocalStorageId(date_string, lang_code);
+  const saved_games = localStorage.getItem('games');
+  if(!saved_games) {
+    console.error('Failed to find saved games object. Skipping applying saved progress.');
+    return;
+  }
+  // current game should be of type `LocalGameProgressSave`
+  const parsedGames: LocalGameProgressSave[] = JSON.parse(saved_games);
+  const current_game = parsedGames.find((game: LocalGameProgressSave) => game.id === game_id);
+  if(current_game){
+    try {
+      const found_words: string[] = current_game.found_words;
+
+      for (const saved_word of found_words) {
+        const matchingWord = valid_words.value.find(word => word.word === saved_word);
+        if (matchingWord) {
+          matchingWord.is_found = true;
+        } else {
+          console.error('Saved word does not exist in valid words. Skipping this word. Saved word:', saved_word);
+          return;
+        }
+      }
+      handleFoundWordsCalc();
+
+    } catch (error) {
+      console.error('Failed to parse saved game. Skipping applying saved progress.\n', error);
+      return;
+    }
+  } else {
+    const new_games_save: LocalGameProgressSave[] = parsedGames.concat({id: game_id, found_words: []});
+    localStorage.setItem('games', JSON.stringify(new_games_save));
+  }
+
 }
 
 onMounted(async () => {

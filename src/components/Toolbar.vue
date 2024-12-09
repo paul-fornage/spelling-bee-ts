@@ -13,7 +13,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 
 import {Moon, Sun, Menu, Languages, CircleHelp} from 'lucide-vue-next';
-import {Language} from '@/interfaces.ts'
+import {Language} from '@/utils.ts'
 import {
   Dialog,
   DialogContent,

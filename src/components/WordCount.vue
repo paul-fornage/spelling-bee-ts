@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { WordCountData } from '@/interfaces.ts'
+import { WordCountData } from '@/utils.ts'
 
 const props = defineProps<{wordCountData: WordCountData}>();
 

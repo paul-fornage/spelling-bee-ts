@@ -10,7 +10,7 @@ import {
 import { Delete, CornerDownLeft} from 'lucide-vue-next';
 import WordCount from "@/components/WordCount.vue";
 import WordList from "@/components/ui/WordList.vue";
-import {CombData, ValidWord, WordCountData} from '@/interfaces.ts'
+import {CombData, ValidWord, WordCountData} from '@/utils.ts'
 
 function onCellClicked(char: string) {
   console.log(`Character clicked: ${char}`);

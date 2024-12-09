@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { CombData } from '@/interfaces.ts'
+import { CombData } from '@/utils.ts'
 
 const props = defineProps<CombData>()
 const emit = defineEmits(['cellClicked']);
