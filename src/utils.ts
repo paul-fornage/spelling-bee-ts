@@ -29,7 +29,7 @@ export interface LocalGameProgressSave {
 }
 
 export function DateToString(date: DateValue): string {
-    return date.year.toString() + '-' + date.month.toString() + '-' + date.day.toString();
+    return pad(date.year, 4) + '-' + pad(date.month, 2) + '-' + pad(date.day, 2);
 }
 export function DateFromString(date: string): DateValue {
     const [year, month, day] = date.split('-');
@@ -41,4 +41,10 @@ export function DateFromString(date: string): DateValue {
 }
 export function GetLocalStorageId(date: string, lang_code: string): string {
     return 'game_' + date + '_' + lang_code;
+}
+
+function pad(num: number, size: number) {
+    let numstr = num.toString();
+    while (numstr.length < size) numstr = "0" + numstr;
+    return numstr;
 }

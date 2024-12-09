@@ -21,9 +21,11 @@ const df = new DateFormatter('en-US', {
 
 function handleChangeDate() {
   console.log(selected_date.value)
+  emits('changeDate', selected_date.value);
 }
 
 const props = defineProps<{ date: DateValue|undefined }>();
+const emits = defineEmits(['changeDate']);
 
 const selected_date = ref<DateValue>()
 selected_date.value = props.date
@@ -50,11 +52,11 @@ watch(() => props.date, (newDate) => {
     </PopoverTrigger>
     <PopoverContent class="w-auto p-0">
       <Calendar
-          :disabled="true"
+
           v-model="selected_date"
           @update:modelValue="handleChangeDate"
           initial-focus
-          :min-value="new CalendarDate(1900, 1, 1)"
+          :min-value="new CalendarDate(2024, 12, 9)"
           :max-value="today('GMT')"
       />
     </PopoverContent>

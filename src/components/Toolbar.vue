@@ -46,15 +46,18 @@ const toggleTheme = () => {
 };
 
 
+
 const props = defineProps<{languages: Language[], selected_language_code: string, date: DateValue | undefined}>();
-const emits = defineEmits(['changeLang']);
+const emits = defineEmits(['changeLang', 'changeDate']);
 
 watch(() => props.selected_language_code, (new_lang_code) => {
   selected_language.value = new_lang_code;
 });
 
-const selected_language = ref<string>(props.selected_language_code);
+const selected_date = ref<DateValue>()
+const date_select_open = ref(false)
 
+const selected_language = ref<string>(props.selected_language_code);
 const language_select_open = ref(false)
 
 const selectedLanguageObject = computed(() => {
@@ -69,6 +72,27 @@ const selectedLanguageEmoji = computed(() => {
     return '';
   }
 });
+
+const selected_date_temp = ref<DateValue>();
+
+function handleDateChangeTemp(newDate: DateValue) {
+  selected_date_temp.value = newDate;
+}
+
+const handleDateChangeCommit = () => {
+  date_select_open.value = false;
+  selected_date.value = selected_date_temp.value;
+  console.log("Saving date: " + selected_date.value);
+  emits('changeDate', selected_date.value);
+}
+
+
+const handleDateChangeSave = (date: DateValue) => {
+  date_select_open.value = false;
+  selected_date.value = date
+  console.log("Saving date: " + selected_date.value);
+  emits('changeDate', selected_date.value);
+}
 
 const handleLangChangeSave = () => {
   language_select_open.value = false;
@@ -105,6 +129,10 @@ const handleLangChangeSave = () => {
             Select language
             <Languages class="w-4 h-4 ml-1" />
             <Menu class="w-4 h-4 ml-1" />
+          </DropdownMenuItem>
+          <DropdownMenuSeparator class="mobile-only"/>
+          <DropdownMenuItem @select="date_select_open = true" class="flex mobile-only cursor-pointer">
+            Select date
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem class="flex">
@@ -149,12 +177,27 @@ const handleLangChangeSave = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog v-model:open="date_select_open">
+        <DialogContent class="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Select date</DialogTitle>
+          </DialogHeader>
+          <div class="grid gap-4 py-4 justify-center">
+            <DateSelector :date="selected_date_temp" @changeDate="handleDateChangeTemp" class="mx-auto"/>
+          </div>
+          <DialogFooter>
+            <Button @click="handleDateChangeCommit">
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
-    <div class="toolbar-section justify-self-center">
+    <div class="toolbar-section toolbar-section-center">
       <h2 class="text-xl font-bold">{{selectedLanguageEmoji}} Spelling Bee {{selectedLanguageEmoji}}</h2>
     </div>
     <div class="toolbar-section toolbar-section-right">
-      <DateSelector :date="props.date"/>
+      <DateSelector :date="props.date" @changeDate="handleDateChangeSave"/>
     </div>
   </div>
 </template>
@@ -172,6 +215,15 @@ const handleLangChangeSave = () => {
   flex: max-content;
 }
 
+.mobile-only{
+  display: none;
+}
+@media (orientation: portrait) {
+  .mobile-only{
+    display: block;
+  }
+}
+
 .thumb-content {
   display: flex;
   align-items: center;
@@ -183,6 +235,25 @@ const handleLangChangeSave = () => {
 .toolbar-section-right {
   margin-left: auto;
   margin-right: 2vw;
+  display: none;
+}
+
+@media (orientation: landscape) {
+  .toolbar-section-right {
+    display: block; /* Show in landscape mode */
+
+  }
+}
+
+.toolbar-section-center {
+  justify-self: center;
+}
+
+@media (orientation: portrait) {
+  .toolbar-section-center {
+    margin-right: 2rem;
+    flex: 1;
+  }
 }
 
 .toolbar-section-left {
@@ -190,6 +261,12 @@ const handleLangChangeSave = () => {
   margin-left: 2vw;
 }
 
+@media (orientation: portrait) {
+  .toolbar-section-left {
+    margin-right: 2rem;
+    flex: 1;
+  }
+}
 
 .toolbar-section {
   align-items: center;
@@ -198,7 +275,7 @@ const handleLangChangeSave = () => {
 }
 
 .toolbar-menu-button {
-  width: 10vw;
+  width: 10em;
   justify-self: left;
 }
 </style>

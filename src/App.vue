@@ -4,6 +4,9 @@ import Toolbar from "@/components/Toolbar.vue";
 import {ref, onMounted, computed} from "vue";
 import {
   type DateValue,
+  getLocalTimeZone,
+  today,
+  CalendarDate,
 } from '@internationalized/date'
 import axios from "axios";
 import {
@@ -51,16 +54,19 @@ const wordCountData = computed<WordCountData>(() => {
   }
 });
 
+const today_var: CalendarDate = today(getLocalTimeZone())
 const selected_date = ref<DateValue>()
+selected_date.value = today_var
+
 const selected_language_code = ref<string>(languages.value[0].code);
 
 function handleGuess(newGuess: string) {
   const matchingWord = valid_words.value.find(word => word.word === newGuess);
   if (matchingWord) {
     matchingWord.is_found = true;
-    if(selected_date.value === undefined) {
-      console.log("tried to handle guess before lang was selected. This should never happen.");
-      return
+    if(selected_date.value === undefined){
+      return // this is literally impossible,
+      // the var is declared and assigned on consecutive lines, but the IDE is bitching
     }
     const date_string: string = DateToString(selected_date.value);
     const game_id = GetLocalStorageId(date_string, selected_language_code.value);
@@ -99,11 +105,16 @@ function handleFoundWordsCalc() {
   // );
 }
 
-const loadTodayDailyGame = async (lang_code: string) => {
+function handleDateChange(new_date: DateValue) {
+  selected_date.value = new_date;
+  loadDailyGame(selected_date.value, selected_language_code.value);
+}
+
+const loadDailyGame = async (date: DateValue, lang_code: string) => {
   try {
     console.log('Fetching comb data for lang:', lang_code);
-
-    const response = await axios.get(`//abeille-dorthographe-api.fornage.org/api/${lang_code}/dailygame/today`);
+    const date_str = DateToString(date);
+    const response = await axios.get(`//abeille-dorthographe-api.fornage.org/api/${lang_code}/dailygame/${date_str}`);
     comb.value = response.data['comb'];
     // console.log(
     //     'Fetched comb data:',
@@ -195,8 +206,11 @@ onMounted(async () => {
       localStorage.setItem('lang_code', selected_language_code.value);
     }
 
-
-    await loadTodayDailyGame(selected_language_code.value);
+    if(selected_date.value === undefined){
+      return // this is literally impossible,
+      // the var is declared and assigned on consecutive lines, but the IDE is bitching
+    }
+    await loadDailyGame(selected_date.value, selected_language_code.value);
   } catch (error) {
     console.error('Failed to fetch languages data:', error);
     throw error;
@@ -206,7 +220,11 @@ onMounted(async () => {
 function handleLangChangeSave(lang_code: string) {
   console.log('handleLangChangeSave:', lang_code);
   selected_language_code.value = lang_code;
-  loadTodayDailyGame(lang_code);
+  if(selected_date.value === undefined){
+    return // this is literally impossible,
+    // the var is declared and assigned on consecutive lines, but the IDE is bitching
+  }
+  loadDailyGame(selected_date.value, lang_code);
   localStorage.setItem('lang_code', lang_code);
 }
 
@@ -219,6 +237,7 @@ function handleLangChangeSave(lang_code: string) {
         @changeLang="handleLangChangeSave"
         :selected_language_code="selected_language_code"
         :date="selected_date"
+        @changeDate="handleDateChange"
     />
   </div>
   <div class="main-canvas">
@@ -245,4 +264,11 @@ function handleLangChangeSave(lang_code: string) {
   display: flex;
   margin: 2vh 0;
 }
+
+@media (orientation: portrait) {
+  .main-canvas {
+    flex-direction: column;
+  }
+}
+
 </style>

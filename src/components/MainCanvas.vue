@@ -85,6 +85,10 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyPress);
 });
 
+function handleShowWordList() {
+  console.log("show word list");
+}
+
 </script>
 
 <template>
@@ -121,6 +125,14 @@ onUnmounted(() => {
       </CardContent>
     </Card>
   </div>
+  <Card class="score-card-mobile score-card dark:bg-slate-900 bg-slate-100">
+    <CardContent>
+      <WordCount :wordCountData="props.wordCountData"/>
+      <Button class="w-full dark:bg-slate-800 bg-slate-300 mt-2" variant="outline" @click="handleShowWordList">
+        Show word list
+      </Button>
+    </CardContent>
+  </Card>
 
 </template>
 
@@ -137,13 +149,34 @@ onUnmounted(() => {
   font-size: 300%;
 }
 
+.score-card-mobile {
+  display: none;
+}
+
+@media (orientation: portrait) {
+  .score-card-mobile {
+    flex: 1;
+    margin: 2em auto 1em;
+    display: block;
+    width: 80vw;
+  }
+}
+
 .right-cards {
   justify-self: right;
   justify-content: center;
   width: 30%;
   margin: auto;
   height: 80%;
+  display: block;
 }
+
+@media (orientation: portrait) {
+  .right-cards {
+    display: none;
+  }
+}
+
 .comb-card {
   justify-self: center;
   justify-content: center;
@@ -153,6 +186,13 @@ onUnmounted(() => {
   max-height: 100%;
   display: flex;
 }
+
+@media (orientation: portrait) {
+  .comb-card {
+    width: 80vw;
+  }
+}
+
 .comb-card-content {
   height: 100%;
   width: 100%;
