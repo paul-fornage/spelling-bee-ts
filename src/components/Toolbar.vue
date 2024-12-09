@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import {ref, computed, onMounted, onUnmounted, watch} from 'vue';
 
 import { Button } from '@/components/ui/button'
 import DateSelector from "@/components/DateSelector.vue";
@@ -36,8 +36,10 @@ const isDark = ref<boolean>(document.documentElement.classList.contains('dark'))
 const toggleTheme = () => {
   if (isDark.value) {
     document.documentElement.classList.remove('dark');
+    localStorage.setItem('dark', 'false');
   } else {
     document.documentElement.classList.add('dark');
+    localStorage.setItem('dark', 'true');
   }
   isDark.value = !isDark.value;
 };
@@ -55,6 +57,10 @@ interface Language {
 // ])
 const props = defineProps<{languages: Language[], selected_language_code: string, date: DateValue | undefined}>();
 const emits = defineEmits(['changeLang']);
+
+watch(() => props.selected_language_code, (new_lang_code) => {
+  selected_language.value = new_lang_code;
+});
 
 const selected_language = ref<string>(props.selected_language_code);
 
