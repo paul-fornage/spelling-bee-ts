@@ -26,11 +26,10 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {CalendarDate, DateValue} from "@internationalized/date";
+import {DateValue} from "@internationalized/date";
 
 const isDark = ref<boolean>(document.documentElement.classList.contains('dark'));
 
