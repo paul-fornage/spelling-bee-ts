@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, computed, onMounted, onUnmounted, watch} from 'vue';
+import {ref, computed, watch} from 'vue';
 
 import { Button } from '@/components/ui/button'
 import DateSelector from "@/components/DateSelector.vue";
@@ -7,7 +7,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { Switch } from '@/components/ui/switch'
 
@@ -99,11 +100,13 @@ const handleLangChangeSave = () => {
               </template>
             </Switch>
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem @select="language_select_open = true" class="cursor-pointer">
             Select language
             <Languages class="w-4 h-4 ml-1" />
             <Menu class="w-4 h-4 ml-1" />
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem class="flex">
             <a
                 target="_blank"
