@@ -1,11 +1,6 @@
 <script setup lang="ts">
 
-interface WordCountData {
-  points_found: number,
-  words_found: number,
-  max_points: number,
-  max_words: number,
-}
+import { WordCountData } from '@/interfaces.ts'
 
 const props = defineProps<{wordCountData: WordCountData}>();
 

@@ -12,7 +12,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 
 import {Moon, Sun, Menu, Languages, CircleHelp} from 'lucide-vue-next';
-
+import {Language} from '@/interfaces.ts'
 import {
   Dialog,
   DialogContent,
@@ -44,17 +44,7 @@ const toggleTheme = () => {
   isDark.value = !isDark.value;
 };
 
-interface Language {
-  name: string;
-  code: string;
-  letter_set: string;
-  flag_emoji: string;
-}
 
-// const languages = ref<Language[]>([
-//   {name: 'English', code: 'en'},
-//   {name: 'French', code: 'fr'},
-// ])
 const props = defineProps<{languages: Language[], selected_language_code: string, date: DateValue | undefined}>();
 const emits = defineEmits(['changeLang']);
 

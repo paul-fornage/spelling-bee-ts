@@ -3,14 +3,9 @@
 import {ScrollArea} from "@/components/ui/scroll-area";
 import { Star } from 'lucide-vue-next';
 import { computed } from 'vue';
+import { ValidWord } from '@/interfaces.ts'
 
 
-interface ValidWord{
-  word: string;
-  point_value: number;
-  is_found: boolean;
-  is_panagram: boolean;
-}
 
 const props = defineProps<{validWords: ValidWord[]}>();
 

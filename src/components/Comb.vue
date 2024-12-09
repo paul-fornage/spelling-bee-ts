@@ -1,8 +1,6 @@
 <script setup lang="ts">
-interface CombData {
-  center_char: string;
-  outer_chars: string[];
-}
+
+import { CombData } from '@/interfaces.ts'
 
 const props = defineProps<CombData>()
 const emit = defineEmits(['cellClicked']);

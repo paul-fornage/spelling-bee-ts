@@ -10,30 +10,13 @@ import {
 import { Delete, CornerDownLeft} from 'lucide-vue-next';
 import WordCount from "@/components/WordCount.vue";
 import WordList from "@/components/ui/WordList.vue";
+import {CombData, ValidWord, WordCountData} from '@/interfaces.ts'
 
 function onCellClicked(char: string) {
   console.log(`Character clicked: ${char}`);
   current_guess.value+=(char);
 }
 
-interface CombData {
-  center_char: string;
-  outer_chars: string[];
-}
-
-interface WordCountData {
-  points_found: number,
-  words_found: number,
-  max_points: number,
-  max_words: number,
-}
-
-interface ValidWord{
-  word: string;
-  point_value: number;
-  is_found: boolean;
-  is_panagram: boolean;
-}
 
 const DEFAULT_COMB_DATA = {
   center_char: " ",

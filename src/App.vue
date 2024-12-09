@@ -7,6 +7,7 @@ import {
   CalendarDate,
 } from '@internationalized/date'
 import axios from "axios";
+import {CombData, Language, ValidWord, WordCountData} from '@/interfaces.ts'
 
 
 const local_dark_mode = localStorage.getItem('dark');
@@ -17,31 +18,6 @@ if(local_dark_mode) {
 } else {
   document.documentElement.classList.add('dark');
   localStorage.setItem('dark', 'true');
-}
-
-
-interface Language {
-  name: string;
-  code: string;
-  letter_set: string;
-  flag_emoji: string;
-}
-interface CombData {
-  center_char: string;
-  outer_chars: string[];
-}
-interface ValidWord {
-  point_value: number,
-  word: string,
-  is_found: boolean,
-  is_panagram: boolean,
-}
-
-interface WordCountData {
-  points_found: number,
-  words_found: number,
-  max_points: number,
-  max_words: number,
 }
 
 let comb = ref<CombData|null>(null)
