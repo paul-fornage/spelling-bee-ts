@@ -1,8 +1,16 @@
 <script setup lang="ts">
 
 import { WordCountData } from '@/utils.ts'
+import {Button} from "@/components/ui/button";
+import {computed} from "vue";
 
-const props = defineProps<{wordCountData: WordCountData}>();
+const props = defineProps<{wordCountData: WordCountData, showHiddenButton: boolean}>();
+
+const emits = defineEmits(['showHiddenButtonClicked']);
+
+const give_up_button_message = computed<string>(() => {
+  return (props.showHiddenButton ? 'Permanently reveal answers' : 'Show hidden words (can\'t give up today\'s puzzle)')
+})
 
 </script>
 
@@ -22,6 +30,16 @@ const props = defineProps<{wordCountData: WordCountData}>();
     <h1 class="score-row-value">
       {{ props.wordCountData.points_found }} / {{ props.wordCountData.max_points }}
     </h1>
+  </div>
+  <div class="score-row flex border-b-2 border-dashed dark:border-slate-700 border-slate-300">
+<!--      v-if="showHiddenButton"-->
+
+    <Button
+        :class="'w-full m-2 ' + (showHiddenButton ? '' : 'accent-muted cursor-not-allowed')"
+        :disabled="!showHiddenButton"
+        @click="emits('showHiddenButtonClicked')">
+      {{give_up_button_message}}
+    </Button>
   </div>
 </template>
 

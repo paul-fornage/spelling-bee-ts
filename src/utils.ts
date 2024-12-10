@@ -26,6 +26,8 @@ export interface WordCountData {
 export interface LocalGameProgressSave {
     id: string,
     found_words: string[],
+    given_up: boolean|undefined, // because this was added after an early release, it might not be present on old saves.
+    // because this version also didn't have an option to give up, undefined should be read as false.
 }
 
 export enum FeedbackType {

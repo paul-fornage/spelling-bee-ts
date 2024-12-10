@@ -65,7 +65,17 @@ const allChars = computed<string[]>( () => {
 
 const today_var: CalendarDate = today(getLocalTimeZone())
 const selected_date = ref<DateValue>()
-selected_date.value = today_var
+selected_date.value = today_var;
+
+const isTodaysGame = computed<boolean>(() => {
+  if(selected_date.value === undefined){
+    console.error('selected_date is undefined. This should not happen.');
+    return false;
+  }
+  const local_selected_date = DateToString(selected_date.value);
+  const local_today_date = DateToString(today(getLocalTimeZone()));
+  return local_selected_date === local_today_date
+})
 
 const selected_language_code = ref<string>(languages.value[0].code);
 
@@ -74,6 +84,7 @@ const feedback_guess = ref<string>();
 const feedback_points = ref<number>();
 const feedback_valid_char_set = ref<string>();
 const show_feedback = ref<boolean>(false);
+const current_game_given_up = ref<boolean>(false);
 
 function giveGuessFeedback(guess: string, points: number, valid_char_set: string, feedback_type_in: FeedbackType) {
   feedback_type.value = feedback_type_in;
@@ -83,7 +94,7 @@ function giveGuessFeedback(guess: string, points: number, valid_char_set: string
   show_feedback.value = true;
   setTimeout(() => {
     show_feedback.value = false;
-  }, 3000);
+  }, 2000);
 }
 
 function handleGuess(newGuess: string) {
@@ -188,6 +199,7 @@ function handleGuess(newGuess: string) {
     );
   }
 }
+
 if(!localStorage.getItem('games')) { // if no games array exist (presumeably local user), create the empty array
   localStorage.setItem('games', JSON.stringify([]));
 }
@@ -260,6 +272,24 @@ function loadSavedGuesses(lang_code: string, date: DateValue) {
   const current_game = parsedGames.find((game: LocalGameProgressSave) => game.id === game_id);
   if(current_game){
     try {
+      let is_given_up: boolean|undefined = current_game.given_up;
+
+      if(is_given_up === undefined) {
+        is_given_up = false;
+      }
+
+      console.log(
+          'from game save is_given_up:',
+          is_given_up
+      );
+      current_game_given_up.value = is_given_up;
+    } catch (error) {
+      console.log(
+          'Failed to parse is_given_up from saved game. Skipping and continuing with load.\n',
+          error)
+    }
+
+    try {
       const found_words: string[] = current_game.found_words;
 
       for (const saved_word of found_words) {
@@ -278,7 +308,7 @@ function loadSavedGuesses(lang_code: string, date: DateValue) {
       return;
     }
   } else {
-    const new_games_save: LocalGameProgressSave[] = parsedGames.concat({id: game_id, found_words: []});
+    const new_games_save: LocalGameProgressSave[] = parsedGames.concat({id: game_id, found_words: [], given_up: false});
     localStorage.setItem('games', JSON.stringify(new_games_save));
   }
 
@@ -326,6 +356,29 @@ function handleLangChangeSave(lang_code: string) {
   localStorage.setItem('lang_code', lang_code);
 }
 
+function handleGiveUp() {
+  if(selected_date.value === undefined || selected_language_code.value === undefined){
+    return
+  }
+
+  current_game_given_up.value = true;
+
+  const date_string: string = DateToString(selected_date.value);
+  const game_id = GetLocalStorageId(date_string, selected_language_code.value);
+  const saved_games = localStorage.getItem('games');
+  if(!saved_games) {
+    console.error('Failed to find saved games object. Skipping applying given_up');
+    return;
+  }
+  // current game should be of type `LocalGameProgressSave`
+  const parsedGames: LocalGameProgressSave[] = JSON.parse(saved_games);
+  const current_game = parsedGames.find((game: LocalGameProgressSave) => game.id === game_id);
+  if(current_game){
+    current_game.given_up = true;
+    localStorage.setItem('games', JSON.stringify(parsedGames));
+  }
+}
+
 </script>
 
 <template>
@@ -349,9 +402,12 @@ function handleLangChangeSave(lang_code: string) {
   <div class="main-canvas">
     <MainCanvas
         @newGuess="handleGuess"
+        @giveUp="handleGiveUp"
+        :showHiddenWords="current_game_given_up"
         :combData="comb"
         :validWords="valid_words"
         :wordCountData="wordCountData"
+        :showHiddenButton="!isTodaysGame"
     />
   </div>
 </template>

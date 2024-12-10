@@ -7,7 +7,7 @@ import { ValidWord } from '@/utils.ts'
 
 
 
-const props = defineProps<{validWords: ValidWord[]}>();
+const props = defineProps<{validWords: ValidWord[], showHidden: boolean}>();
 
 const sortedWords = computed(() => {
   return [...props.validWords].sort((a, b) => {
@@ -29,14 +29,14 @@ const sortedWords = computed(() => {
 
       <div v-for="word in sortedWords" :key="word.word">
         <div class="text-lg flex border-t-2 border-dashed dark:border-slate-700 border-slate-300 py-1"
-             v-if="word.is_found">
-          <div class="text-lg word-item-text">
+             v-if="word.is_found || showHidden">
+          <div :class="'text-lg word-item-text ' + (word.is_found ? '' : 'text-red-500')">
             {{ word.word }}
           </div>
           <div class="text-lg word-item-panagram" v-if="word.is_panagram">
             <Star class="text-yellow-500 h-6 w-6 pt-1"/>
           </div>
-          <div class="text-lg word-item-points px-2">
+          <div :class="'text-lg word-item-points px-2 ' + (word.is_found ? '' : 'text-red-500')">
             {{ word.point_value }}
           </div>
         </div>
@@ -48,7 +48,7 @@ const sortedWords = computed(() => {
 <style scoped>
 
 .scroll-area {
-  height: calc(78vh - 12.5rem);
+  height: calc(78vh - 15.5rem);
 }
 
 .word-item-text{

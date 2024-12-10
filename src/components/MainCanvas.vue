@@ -3,6 +3,11 @@ import Comb from "@/components/Comb.vue";
 import {Button} from '@/components/ui/button'
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import {Card, CardContent,} from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent, DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import {CornerDownLeft, Delete} from 'lucide-vue-next';
 import WordCount from "@/components/WordCount.vue";
@@ -24,6 +29,8 @@ const props = defineProps<{
   combData: CombData|null,
   validWords: ValidWord[]
   wordCountData: WordCountData,
+  showHiddenButton: boolean,
+  showHiddenWords: boolean,
 }>();
 
 const comb_data = ref<CombData>((() => {
@@ -34,7 +41,7 @@ const comb_data = ref<CombData>((() => {
   }
 })());
 
-const emits = defineEmits(['newGuess'])
+const emits = defineEmits(['newGuess', 'giveUp'])
 
 const allChars = computed( () => {
   return comb_data.value.outer_chars.concat(comb_data.value.center_char);
@@ -74,7 +81,6 @@ function handleGuess() {
 }
 
 const handleKeyPress = (event: KeyboardEvent) => {
-  console.log(`new keypress: ${event.key}`);
   if (event.key.length === 1) { // Ensures it's a character
     current_guess.value += event.key.toUpperCase();
   } else if (event.key === 'Backspace') {
@@ -85,6 +91,10 @@ const handleKeyPress = (event: KeyboardEvent) => {
   }
 };
 
+function handleShowHiddenWords() {
+  emits('giveUp');
+}
+
 onMounted(() => {
   window.addEventListener('keydown', handleKeyPress);
 });
@@ -92,10 +102,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyPress);
 });
-
-function handleShowWordList() {
-  console.log("show word list");
-}
 
 </script>
 
@@ -129,21 +135,33 @@ function handleShowWordList() {
   <div class="right-cards">
     <Card class="score-card dark:bg-slate-900 bg-slate-100">
       <CardContent>
-        <WordCount :wordCountData="props.wordCountData"/>
+        <WordCount
+            :wordCountData="props.wordCountData"
+            :showHiddenButton="props.showHiddenButton"
+            @showHiddenButtonClicked="handleShowHiddenWords"/>
       </CardContent>
     </Card>
     <Card class="word-list-card dark:bg-slate-900 bg-slate-100 mt-2">
       <CardContent>
-        <WordList :validWords="props.validWords"/>
+        <WordList :validWords="props.validWords" :show-hidden="props.showHiddenWords"/>
       </CardContent>
     </Card>
   </div>
-  <Card class="score-card-mobile score-card dark:bg-slate-900 bg-slate-100">
+  <Card class="score-card-mobile score-card justify-center dark:bg-slate-900 bg-slate-100">
     <CardContent>
-      <WordCount :wordCountData="props.wordCountData"/>
-      <Button class="w-full dark:bg-slate-800 bg-slate-300 mt-2" variant="outline" @click="handleShowWordList">
-        Show word list
-      </Button>
+      <WordCount
+          :wordCountData="props.wordCountData"
+          :showHiddenButton="props.showHiddenButton"
+          @showHiddenButtonClicked="handleShowHiddenWords"/>
+      <Dialog class="">
+        <DialogTrigger class="flex justify-center rounded-md px-10 py-2 my-2 mx-auto dark:bg-slate-800 bg-slate-200">
+          Show words
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Word list</DialogTitle>
+          <WordList :validWords="props.validWords" :show-hidden="props.showHiddenWords"/>
+        </DialogContent>
+      </Dialog>
     </CardContent>
   </Card>
 
@@ -180,8 +198,7 @@ function handleShowWordList() {
 @media (orientation: portrait) {
   .guess-input-button-group {
     width: 100%;
-    flex: 1;
-    height: 10rem;
+    height: 4rem;
   }
 }
 
@@ -193,7 +210,7 @@ function handleShowWordList() {
 
 @media (orientation: portrait) {
   .guess-input-text{
-    flex: 1;
+    height: 4rem;
   }
 }
 
@@ -217,7 +234,7 @@ function handleShowWordList() {
     margin: 2em auto auto auto;
     display: block;
     width: 80vw;
-    height: 10rem
+    height: 12rem
   }
 }
 
@@ -227,7 +244,8 @@ function handleShowWordList() {
   width: 30%;
   margin: auto;
   height: 80%;
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (orientation: portrait) {
@@ -240,29 +258,38 @@ function handleShowWordList() {
   justify-self: center;
   justify-content: center;
   margin: auto;
-  width: 50vw;
-
   max-height: 100%;
   display: flex;
 }
 
+@media (orientation: landscape) {
+  .comb-card {
+    width: 50vw;
+  }
+}
+
 @media (orientation: portrait) {
   .comb-card {
-    width: 80vw;
+    flex: 6;
+    max-width: 90vw;
+    max-height: 72vh;
+    height: 100%;
+    width: 100%;
   }
 }
 
 .comb-card-content {
-  height: 100%;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .score-card {
   justify-content: center;
-  height: 6rem
+  flex: 1;
 }
 
 .word-list-card {
-  flex: 5;
-  height: calc(100% - 6rem);
+  flex: 8;
 }
 </style>

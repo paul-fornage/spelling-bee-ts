@@ -19,7 +19,6 @@ const handleClick = (char: string, event: MouseEvent) => {
 };
 
 function handleKeyPress(event: KeyboardEvent) {
-  console.log("comb key pressed: " + event.key.toUpperCase());
   if (event.key.length === 1) {
     const target_id: string = 'cell-' + event.key.toUpperCase();
     const target = document.getElementById(target_id);
@@ -111,8 +110,10 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   max-width: 60vh;
+  width: 100%;
   max-height: 100%;
   margin: auto;
+  flex: 8;
 }
 
 
