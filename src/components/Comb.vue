@@ -132,15 +132,19 @@ onUnmounted(() => {
 .center-cell{
   fill: #e8590c;
 }
-.center-cell:hover{
-  fill: #aa4007;
-  cursor: pointer;
-}
 .outer-cell{
   fill: #f08c00;
 }
-.outer-cell:hover{
-  fill: #aa6400;
-  cursor: pointer;
+
+@media (orientation: landscape){
+  .center-cell:hover{
+    fill: #aa4007;
+    cursor: pointer;
+  }
+  .outer-cell:hover{
+    fill: #aa6400;
+    cursor: pointer;
+  }
 }
+
 </style>
