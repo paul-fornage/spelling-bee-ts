@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {DateValue} from "@internationalized/date";
+import DateSelectorMobile from "@/components/DateSelectorMobile.vue";
 
 const isDark = ref<boolean>(document.documentElement.classList.contains('dark'));
 
@@ -52,6 +53,13 @@ const emits = defineEmits(['changeLang', 'changeDate']);
 
 watch(() => props.selected_language_code, (new_lang_code) => {
   selected_language.value = new_lang_code;
+});
+
+watch(() => props.date, (new_date) => {
+  if(new_date !== undefined){
+    selected_date.value = new_date;
+    selected_date_temp.value = new_date;
+  }
 });
 
 const selected_date = ref<DateValue>()
@@ -183,7 +191,7 @@ const handleLangChangeSave = () => {
             <DialogTitle>Select date</DialogTitle>
           </DialogHeader>
           <div class="grid gap-4 py-4 justify-center">
-            <DateSelector :date="selected_date_temp" @changeDate="handleDateChangeTemp" class="mx-auto"/>
+            <DateSelectorMobile :date="selected_date_temp" @changeDate="handleDateChangeTemp"/>
           </div>
           <DialogFooter>
             <Button @click="handleDateChangeCommit">
