@@ -95,15 +95,18 @@ function handleShowWordList() {
   <Card class="comb-card dark:bg-slate-900 bg-slate-100">
     <CardContent class="comb-card-content">
       <div class="guess-input flex w-full self-center items-center gap-1.5">
-        <div class="dark:bg-slate-800 bg-slate-300 h-full w-full rounded-md border px-4  font-mono scaled-font">
+        <div class="dark:bg-slate-800 bg-slate-300 w-full rounded-md border px-4 font-mono guess-input-text">
           {{current_guess}}
         </div>
-        <Button variant="destructive" class="h-full" @click="handleDelete">
-          <Delete class="h-full w-auto"/>
-        </Button>
-        <Button class="dark:bg-slate-800 bg-slate-300 text-gray-800 dark:text-gray-200 h-full" variant="outline" @click="handleGuess">
-          <CornerDownLeft/>
-        </Button>
+        <div class="guess-input-button-group flex h-full gap-1.5">
+          <Button variant="destructive" class="h-full guess-input-button" @click="handleDelete">
+            <Delete class="h-full w-auto"/>
+          </Button>
+          <Button class="dark:bg-slate-800 bg-slate-300 text-gray-800 dark:text-gray-200 h-full guess-input-button" variant="outline" @click="handleGuess">
+            <CornerDownLeft/>
+          </Button>
+        </div>
+
       </div>
       <Comb :center_char="comb_data.center_char" :outer_chars="comb_data.outer_chars" @cellClicked="onCellClicked"/>
       <div class="shuffle-input flex justify-center">
@@ -145,8 +148,47 @@ function handleShowWordList() {
   height: clamp(3rem, 6vh, 10rem);
 }
 
-.scaled-font {
-  font-size: 300%;
+@media (orientation: portrait) {
+  .guess-input {
+    flex-direction: column;
+    width: 100%;
+    height: clamp(6rem, 12vh, 20rem);
+  }
+}
+@media (orientation: portrait) {
+  .guess-input-button {
+    width: 45%;
+    flex: 1;
+  }
+}
+@media (orientation: portrait) {
+  .guess-input-button-group {
+    width: 100%;
+    flex: 1;
+    height: 10rem;
+  }
+}
+
+.guess-input-text {
+  font-size: calc(clamp(3rem, 6vh, 10rem) - 2vh);
+  height: 100%;
+  overflow: hidden;
+}
+
+@media (orientation: portrait) {
+  .guess-input-text{
+    flex: 1;
+  }
+}
+
+@media (orientation: portrait) {
+  .score-card-mobile {
+    flex: 1;
+    margin: 2em auto auto auto;
+    display: block;
+    width: 80vw;
+    height: 10rem
+  }
 }
 
 .score-card-mobile {
@@ -156,9 +198,10 @@ function handleShowWordList() {
 @media (orientation: portrait) {
   .score-card-mobile {
     flex: 1;
-    margin: 2em auto 1em;
+    margin: 2em auto auto auto;
     display: block;
     width: 80vw;
+    height: 10rem
   }
 }
 

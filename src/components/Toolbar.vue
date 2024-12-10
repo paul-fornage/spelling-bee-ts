@@ -252,7 +252,7 @@ const handleLangChangeSave = () => {
 @media (orientation: portrait) {
   .toolbar-section-center {
     margin-right: 2rem;
-    flex: 1;
+    flex: max-content;
   }
 }
 
@@ -275,7 +275,8 @@ const handleLangChangeSave = () => {
 }
 
 .toolbar-menu-button {
-  width: 10em;
+  width: 8em;
   justify-self: left;
 }
+
 </style>
