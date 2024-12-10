@@ -17,8 +17,9 @@ import {
   DateToString,
   DateFromString,
   GetLocalStorageId,
-  LocalGameProgressSave
+  LocalGameProgressSave, FeedbackType
 } from '@/utils.ts'
+import GuessFeedback from "@/components/GuessFeedback.vue";
 
 const local_dark_mode = localStorage.getItem('dark');
 if(local_dark_mode) {
@@ -54,16 +55,106 @@ const wordCountData = computed<WordCountData>(() => {
   }
 });
 
+const allChars = computed<string[]>( () => {
+  if(comb.value !== null) {
+    return comb.value.outer_chars.concat(comb.value.center_char);
+  } else {
+    return [];
+  }
+});
+
 const today_var: CalendarDate = today(getLocalTimeZone())
 const selected_date = ref<DateValue>()
 selected_date.value = today_var
 
 const selected_language_code = ref<string>(languages.value[0].code);
 
+const feedback_type = ref<FeedbackType>();
+const feedback_guess = ref<string>();
+const feedback_points = ref<number>();
+const feedback_valid_char_set = ref<string>();
+const show_feedback = ref<boolean>(false);
+
+function giveGuessFeedback(guess: string, points: number, valid_char_set: string, feedback_type_in: FeedbackType) {
+  feedback_type.value = feedback_type_in;
+  feedback_guess.value = guess;
+  feedback_points.value = points;
+  feedback_valid_char_set.value = valid_char_set;
+  show_feedback.value = true;
+  setTimeout(() => {
+    show_feedback.value = false;
+  }, 3000);
+}
+
 function handleGuess(newGuess: string) {
+
+  if(comb.value === null) {
+    console.error('comb is null. There are bigger problems if this happens.');
+    return;
+  }
+
+  if(newGuess.length < 4) { // NOT_LONG_ENOUGH check
+    giveGuessFeedback(
+        newGuess,
+        0,
+        allChars.value.join(''),
+        FeedbackType.NOT_LONG_ENOUGH
+    );
+    return;
+  }
+
+  if(!newGuess.includes(comb.value.center_char)) {
+    giveGuessFeedback(
+        newGuess,
+        0,
+        allChars.value.join(''),
+        FeedbackType.MISSING_CENTER_CHAR
+    );
+    return;
+  }
+
+  for(const char of newGuess) { // INVALID_CHAR check
+    if(!allChars.value.includes(char)) {
+      giveGuessFeedback(
+          newGuess,
+          0,
+          allChars.value.join(''),
+          FeedbackType.INVALID_CHAR
+      );
+      return;
+    }
+  }
+
   const matchingWord = valid_words.value.find(word => word.word === newGuess);
   if (matchingWord) {
+    if(matchingWord.is_found) {
+      giveGuessFeedback(
+          newGuess,
+          0,
+          allChars.value.join(''),
+          FeedbackType.ALREADY_FOUND
+      );
+      return;
+    }
     matchingWord.is_found = true;
+
+    if(matchingWord.is_panagram) {
+      giveGuessFeedback(
+          newGuess,
+          matchingWord.point_value,
+          allChars.value.join(''),
+          FeedbackType.PANAGRAM
+      );
+    } else {
+      giveGuessFeedback(
+          newGuess,
+          matchingWord.point_value,
+          allChars.value.join(''),
+          FeedbackType.CORRECT
+      );
+    }
+
+
     if(selected_date.value === undefined){
       return // this is literally impossible,
       // the var is declared and assigned on consecutive lines, but the IDE is bitching
@@ -88,6 +179,13 @@ function handleGuess(newGuess: string) {
     current_game.found_words.push(newGuess);
     localStorage.setItem('games', JSON.stringify(parsedGames));
     handleFoundWordsCalc();
+  } else {
+    giveGuessFeedback(
+        newGuess,
+        0,
+        allChars.value.join(''),
+        FeedbackType.NOT_VALID_WORD
+    );
   }
 }
 if(!localStorage.getItem('games')) { // if no games array exist (presumeably local user), create the empty array
@@ -240,6 +338,14 @@ function handleLangChangeSave(lang_code: string) {
         @changeDate="handleDateChange"
     />
   </div>
+  <GuessFeedback
+      v-if="show_feedback"
+      :guess="feedback_guess"
+      :points="feedback_points"
+      :valid-char-set="feedback_valid_char_set"
+      :feedback-type="feedback_type"
+      class="guess-feedback-overlay"
+  />
   <div class="main-canvas">
     <MainCanvas
         @newGuess="handleGuess"
@@ -251,6 +357,16 @@ function handleLangChangeSave(lang_code: string) {
 </template>
 
 <style scoped>
+
+.guess-feedback-overlay {
+  position: absolute; /* or fixed */
+  z-index: 1000; /* or any number higher than other z-indexes */
+  top: calc(max(5vh, 4rem) + 1rem); /* Adjust as necessary */
+  width: 20rem; /* Adjust width */
+  height: 7rem; /* Adjust height */
+  left: 50%; /* Start positioning from the middle of the x-axis */
+  transform: translateX(-50%);
+}
 
 .toolbar {
   height: max(5vh, 4rem);

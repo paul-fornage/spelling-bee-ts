@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import Comb from "@/components/Comb.vue";
-import { Button } from '@/components/ui/button'
-import { onMounted, onUnmounted, ref, watch } from 'vue';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card'
+import {Button} from '@/components/ui/button'
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
+import {Card, CardContent,} from '@/components/ui/card'
 
-import { Delete, CornerDownLeft} from 'lucide-vue-next';
+import {CornerDownLeft, Delete} from 'lucide-vue-next';
 import WordCount from "@/components/WordCount.vue";
 import WordList from "@/components/ui/WordList.vue";
 import {CombData, ValidWord, WordCountData} from '@/utils.ts'
@@ -38,6 +35,17 @@ const comb_data = ref<CombData>((() => {
 })());
 
 const emits = defineEmits(['newGuess'])
+
+const allChars = computed( () => {
+  return comb_data.value.outer_chars.concat(comb_data.value.center_char);
+});
+
+const charStyles = computed(() => {
+  return current_guess.value.split('').map(char => ({
+    char: char,
+    className: allChars.value.includes(char) ? 'text-normal' : 'text-red',
+  }));
+});
 
 watch(
     () => props.combData,
@@ -96,7 +104,9 @@ function handleShowWordList() {
     <CardContent class="comb-card-content">
       <div class="guess-input flex w-full self-center items-center gap-1.5">
         <div class="dark:bg-slate-800 bg-slate-300 w-full rounded-md border px-4 font-mono guess-input-text">
-          {{current_guess}}
+          <span v-for="(item, index) in charStyles" :key="index" :class="item.className">
+            {{ item.char }}
+          </span>
         </div>
         <div class="guess-input-button-group flex h-full gap-1.5">
           <Button variant="destructive" class="h-full guess-input-button" @click="handleDelete">
@@ -141,7 +151,13 @@ function handleShowWordList() {
 
 <style scoped>
 
+.text-normal {
+  color: inherit; /* or another default color you choose */
+}
 
+.text-red {
+  color: red;
+}
 
 .guess-input {
   margin: 1vh auto;

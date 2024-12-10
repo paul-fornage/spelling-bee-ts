@@ -28,6 +28,16 @@ export interface LocalGameProgressSave {
     found_words: string[],
 }
 
+export enum FeedbackType {
+    PANAGRAM = 'panagram',
+    CORRECT = 'correct',
+    ALREADY_FOUND = 'already_found',
+    INVALID_CHAR = 'invalid_char',
+    MISSING_CENTER_CHAR = 'missing_center_char',
+    NOT_VALID_WORD = 'not_valid_word',
+    NOT_LONG_ENOUGH = 'not_long_enough',
+}
+
 export function DateToString(date: DateValue): string {
     return pad(date.year, 4) + '-' + pad(date.month, 2) + '-' + pad(date.day, 2);
 }
