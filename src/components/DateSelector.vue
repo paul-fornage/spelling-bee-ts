@@ -57,7 +57,7 @@ watch(() => props.date, (newDate) => {
           @update:modelValue="handleChangeDate"
           initial-focus
           :min-value="new CalendarDate(2024, 12, 9)"
-          :max-value="today('GMT')"
+          :max-value="today(getLocalTimeZone())"
       />
     </PopoverContent>
   </Popover>
