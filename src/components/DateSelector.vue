@@ -56,7 +56,7 @@ watch(() => props.date, (newDate) => {
           v-model="selected_date"
           @update:modelValue="handleChangeDate"
           initial-focus
-          :min-value="new CalendarDate(2024, 12, 9)"
+          :min-value="new CalendarDate(2024, 12, 17)"
           :max-value="today(getLocalTimeZone())"
       />
     </PopoverContent>
